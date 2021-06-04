@@ -1,0 +1,27 @@
+version: '3.5'
+
+services:
+    docker_db:
+        # image name
+        image: mariadb
+        # Password and user name of mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: 'root'
+            MYSQL_USER: 'root'
+            MYSQL_PASS: 'root'
+            TZ: "Asia/Tokyo"
+        # Which port should be exposed
+        ports:
+            - 3306:3306
+        container_name: docker_db
+        volumes:
+            # Or use the local file
+            - ./docker/docker_db_data/mysql:/var/lib/mysql
+            # Where to save the mysql's log
+            - ./docker/logs:/var/log/mysql:z
+            # Where to load the my.cnf. :z means private zone.
+            - ./docker/config/my.cnf:/etc/mysql/conf.d/my.cnf:z
+            # Initial data setup
+            - ./docker/sql/:/docker-entrypoint-initdb.d/:ro
+volumes:
+    db-store:
