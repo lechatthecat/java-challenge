@@ -39,7 +39,7 @@ To connect to the MariaDB contaier, please use the following information:
   - My IDE shows vulnerability warning on ver 2.9.xx, but ver 2.10.2 is broken version according to GitHub issue, so I changed it to ver 3.0.0.
   - Replaced some other dependencies' versions that can have vulnerability.
 - Added validation for user input. When you pass wrong value to the endpoints, they will return validation messages.
-  - Validation is performed for both of `pathVariable`s and `Employee` json passed in [POST] and [PUT].
+  - Validation is performed for both of `pathVariable`s and `Employee` json passed for all endpoints.
 - Removed bugs.
   - "basic error controller" was removed from swagger-ui.
   - `getEmployee(Long employeeId)` method of `EmoloyeeService` returns `Optional<Employee>`, but controller was checking whether value/null was returned from `getEmployee(Long employeeId)`, which is meaningless because this method always returns `Optional<Employee>` even if the method doesn't find any row by the specified `employeeId`.   
