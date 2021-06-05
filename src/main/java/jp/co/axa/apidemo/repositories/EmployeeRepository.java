@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee,Long> {
-    @Query("select id,name,salary,department from Employee")
+    @Query("select e from Employee e order by id asc")
     List<Employee> findAll();
-    @Query("select id,name,salary,department from Employee where id = :id")
+    @Query("select e from Employee e where id = :id")
     Employee findById(@Param("id") long id);
 }

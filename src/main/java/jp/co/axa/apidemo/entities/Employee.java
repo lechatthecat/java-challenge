@@ -41,9 +41,9 @@ public class Employee {
 
     @Getter
     @Setter
-    @Pattern(message = "Salary must be a number", regexp="^-?[0-9]*$")
-    @Size(max = 255, message = "Salary cannot be more than 255 letters.")
     @Min(value = 0, message = "Salary must not be less than 0.")
+    @Size(max = 255, message = "Salary cannot be more than 255 letters.")
+    @Pattern(message = "Salary must be a number", regexp="^-?[0-9]*$")
     @Column(name="EMPLOYEE_SALARY")
     private String salary;
 

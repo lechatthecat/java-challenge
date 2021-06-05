@@ -13,6 +13,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import io.swagger.annotations.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,15 +45,12 @@ public class EmployeeController {
      */
     @GetMapping(value = "/employees", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<?> getEmployees() {
+    public List<Employee> getEmployees() {
         try {
-            return new ResponseEntity<>(employeeService.retrieveEmployees(), HttpStatus.OK);
+            return employeeService.retrieveEmployees();
         } catch (Exception ex){
-            // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Search.", ex);
-            // To not return the detail, we just return a fixed string and a status number.
-            Map<String, String> error = this.getMessageMap("Sorry, server error. Please try again later.");
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Sorry, server error. Please try again later.");
         }
     }
 
@@ -67,6 +67,9 @@ public class EmployeeController {
      */
     @GetMapping(value = "/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message ="Successfully found Employee. Returns one Employee selected by a given Employee ID.", response = Employee.class),
+    })
     public ResponseEntity<?> getEmployee(@PathVariable(name="employeeId")String employeeId) {
         try {
              // Check if the employee ID is a valid long
@@ -78,10 +81,10 @@ public class EmployeeController {
             Optional<Employee> opEmp = employeeService.getEmployee(longEmployeeId);
             if (opEmp.isPresent()) {
                 // If Employee was found, give it to the user.
-                return new ResponseEntity<>(opEmp, HttpStatus.OK);
+                return new ResponseEntity<>(opEmp.get(), HttpStatus.OK);
             }
             // If Employee was not found, notify the user that the Employee was not found.
-            return ResponseEntity.badRequest().body(this.getMessageMap("Employee not found."));
+            return new ResponseEntity<>(this.getMessageMap("Employee Not Found."), HttpStatus.NOT_FOUND);
         } catch (Exception ex){
             // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Search: " + employeeId, ex);
@@ -107,6 +110,11 @@ public class EmployeeController {
      * @return ResponseEntity<?>
      */
     @PostMapping(value = "/employees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message ="Successfully saved. Returns saved Employee.", response = Employee.class),
+        @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
+    })
     public ResponseEntity<?> saveEmployee(@Valid @RequestBody Employee employee, BindingResult bindingResult){
         try {
             // Validate the user input. Save the data only when the data is valid.
@@ -117,7 +125,7 @@ public class EmployeeController {
             }
             // If there is no error, proceed to save the data.
             Employee emp = employeeService.saveEmployee(employee);
-            logger.info("Employee Saved Successfully: " + emp.getId());
+            logger.info("Employee Saved Successfully");
             return new ResponseEntity<>(emp, HttpStatus.OK);
         } catch (Exception ex){
             // We don't return the error detail to the API caller.
@@ -139,12 +147,22 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
-    @DeleteMapping("/employees/{employeeId}")
+    @DeleteMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message ="Successfully deleted. Returns a message \"Employee Deleted Successfully\".", response = Employee.class),
+        @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
+    })
     public ResponseEntity<?> deleteEmployee(@Validated @PathVariable(name="employeeId")String employeeId){
         try {
             // Check if the employee ID is a valid long
             if (!this.isLong(employeeId)) {
-                return ResponseEntity.badRequest().body(this.getMessageMap("Employee ID is invalid."));
+                // If there is any error, return the errors.
+                Map<String, Map<String, String>> errors = new HashMap<>();
+                Map<String, String> internalErrors = new HashMap<>();
+                internalErrors.put("id", "Employee ID is invalid.");
+                errors.put("errors", internalErrors);
+                return ResponseEntity.badRequest().body(errors);
             }
             // If Employee ID is valid, convert Employee ID to long.
             long longEmployeeId = Long.valueOf(employeeId);
@@ -156,7 +174,7 @@ public class EmployeeController {
                 return new ResponseEntity<>(this.getMessageMap("Employee Deleted Successfully."), HttpStatus.OK);
             }
             // If Employee was not found, notify the user that the Employee was not found.
-            return ResponseEntity.badRequest().body(this.getMessageMap("Employee not found."));
+            return new ResponseEntity<>(this.getMessageMap("Employee Not Found."), HttpStatus.NOT_FOUND);
         } catch (Exception ex){
             // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Delete: " + employeeId, ex);
@@ -185,7 +203,12 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
-    @PutMapping("/employees/{employeeId}")
+    @PutMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message ="Successfully updated. Returns a message \"Employee Updated Successfully.\".", response = Employee.class),
+        @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
+    })
     public ResponseEntity<?> updateEmployee(@Valid @RequestBody Employee employee,
                                BindingResult bindingResult,
                                @PathVariable(name="employeeId")String employeeId){
@@ -197,7 +220,10 @@ public class EmployeeController {
             // Validate the user input. Save the data only when the data is valid.
             if (bindingResult.hasErrors()) {
                 // If there is any error, return the errors.
-                Map<String, Map<String, String>> errors = this.getErrors(bindingResult.getFieldErrors());
+                Map<String, Map<String, String>> errors = new HashMap<>();
+                Map<String, String> internalErrors = new HashMap<>();
+                internalErrors.put("id", "Employee ID is invalid.");
+                errors.put("errors", internalErrors);
                 return ResponseEntity.badRequest().body(errors);
             }
             // If Employee ID is valid, convert Employee ID to long.
@@ -211,7 +237,7 @@ public class EmployeeController {
                 return new ResponseEntity<>(this.getMessageMap("Employee Updated Successfully."), HttpStatus.OK);
             }
             // If Employee was not found, notify the user that the Employee was not found.
-            return ResponseEntity.badRequest().body(this.getMessageMap("Employee not found."));
+            return new ResponseEntity<>(this.getMessageMap("Employee Not Found."), HttpStatus.NOT_FOUND);
         } catch (Exception ex){
             // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Update", ex);
