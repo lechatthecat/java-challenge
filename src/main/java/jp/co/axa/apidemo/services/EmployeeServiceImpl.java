@@ -4,7 +4,10 @@ import jp.co.axa.apidemo.entities.Employee;
 import jp.co.axa.apidemo.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,15 +31,21 @@ public class EmployeeServiceImpl implements EmployeeService{
         return optEmp.get();
     }
 
+    @Transactional
     public void saveEmployee(Employee employee){
         employeeRepository.save(employee);
     }
 
+    @Transactional
     public void deleteEmployee(Long employeeId){
         employeeRepository.deleteById(employeeId);
     }
 
+    @Transactional
     public void updateEmployee(Employee employee) {
+        Instant instant = Instant.now();
+        Timestamp timestamp = Timestamp.from(instant);
+        employee.setUpdatedAt(timestamp);
         employeeRepository.save(employee);
     }
 }
