@@ -44,10 +44,10 @@ public class Employee {
     @Setter
     @ApiModelProperty(hidden=true)
     @Column(name="UPDATED_AT")
-    private Timestamp updated_at;
+    private Timestamp updatedAt;
 
     @Getter
     @ApiModelProperty(hidden=true)
     @Column(name="CREATED_AT")
-    private Timestamp created_at;
+    private Timestamp createdAt;
 }
