@@ -6,6 +6,8 @@ import jp.co.axa.apidemo.services.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,7 @@ public class EmployeeController {
      * Get all Employees and return them in json format.
      * @return ResponseEntity<?>
      */
+    @Cacheable("employees")
     @GetMapping(value = "/employees", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<Employee> getEmployees() {
@@ -65,6 +68,7 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
+    @Cacheable("employee")
     @GetMapping(value = "/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = {
@@ -109,6 +113,7 @@ public class EmployeeController {
      * @param bindingResult
      * @return ResponseEntity<?>
      */
+    @CacheEvict(cacheNames={"employees", "employee"})
     @PostMapping(value = "/employees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = {
@@ -147,6 +152,7 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
+    @CacheEvict(cacheNames={"employees", "employee"})
     @DeleteMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = {
@@ -203,6 +209,7 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
+    @CacheEvict(cacheNames={"employees", "employee"})
     @PutMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = {
@@ -215,15 +222,16 @@ public class EmployeeController {
         try {
             // Check if the employee ID is a valid long
             if (!this.isLong(employeeId)) {
-                return ResponseEntity.badRequest().body(this.getMessageMap("Employee ID is invalid."));
-            }
-            // Validate the user input. Save the data only when the data is valid.
-            if (bindingResult.hasErrors()) {
-                // If there is any error, return the errors.
                 Map<String, Map<String, String>> errors = new HashMap<>();
                 Map<String, String> internalErrors = new HashMap<>();
                 internalErrors.put("id", "Employee ID is invalid.");
                 errors.put("errors", internalErrors);
+                return ResponseEntity.badRequest().body(errors);
+            }
+            // Validate the user input. Save the data only when the data is valid.
+            if (bindingResult.hasErrors()) {
+                // If there is any error, return the errors.
+                Map<String, Map<String, String>> errors = this.getErrors(bindingResult.getFieldErrors());
                 return ResponseEntity.badRequest().body(errors);
             }
             // If Employee ID is valid, convert Employee ID to long.

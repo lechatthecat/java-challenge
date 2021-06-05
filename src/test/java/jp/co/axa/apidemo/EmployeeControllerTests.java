@@ -38,6 +38,11 @@ public class EmployeeControllerTests {
 	@MockBean
 	EmployeeService empService;
 
+    
+    /** 
+     * This checks if the endpoint "[GET] /api/v1/employees/" returns value correctly.
+     * @throws Exception
+     */
     @Test
 	public void testGetEmployees() throws Exception {
         // Define how EmployeeService works
@@ -87,6 +92,11 @@ public class EmployeeControllerTests {
         assertEquals("dep_test_2", resEmp2.getDepartment());
 	}
 
+    
+    /** 
+     * This checks if the endpoint "[GET] /api/v1/employees/{emplyeeId}" returns value correctly.
+     * @throws Exception
+     */
     @Test
 	public void testGetEmployee() throws Exception {
         // Define how EmployeeService works
@@ -123,7 +133,12 @@ public class EmployeeControllerTests {
         assertEquals("80000", res.getSalary());
 	}
 
-	@Test
+	
+    /** 
+     *  This checks if the endpoint "[POST] /api/v1/employees/" returns value correctly.
+     * @throws Exception
+     */
+    @Test
 	public void testSaveEmployee() throws Exception {
         // Define how EmployeeService works
         Employee emp = new Employee();
@@ -133,7 +148,7 @@ public class EmployeeControllerTests {
         emp.setDepartment("dep_test");
         when(empService.saveEmployee(any(Employee.class))).thenReturn(emp);
 
-		// prepare data and mock's behaviour
+		// prepare data 
         Map<String, String> e = new HashMap<>();
         e.put("department", "dep_test");
         e.put("name", "name_test");
@@ -164,6 +179,11 @@ public class EmployeeControllerTests {
         assertEquals("80000", res.getSalary());
 	}
 
+    
+    /** 
+     * This checks if the validation of the endpoint "[POST] /api/v1/employees/" is performed correctly.
+     * @throws Exception
+     */
     @Test
 	public void testSaveEmployeeValidationFail() throws Exception {
         // Define how EmployeeService works
@@ -174,7 +194,7 @@ public class EmployeeControllerTests {
         emp.setDepartment("dep_test");
         when(empService.saveEmployee(any(Employee.class))).thenReturn(emp);
 
-		// prepare data and mock's behaviour
+		// prepare data 
         Map<String, String> e = new HashMap<>();
         e.put("department", "dep_test");
         e.put("name", "name_test");
@@ -199,6 +219,11 @@ public class EmployeeControllerTests {
             || res.equals("{\"errors\":{\"salary\":\"Salary must be at least 0.\"}}"));
 	}
 
+    
+    /** 
+     * This checks if the endpoint "[DELETE] /api/v1/employees/{emplyeeId}" returns value correctly.
+     * @throws Exception
+     */
     @Test
 	public void testDeleteEmployee() throws Exception {
         // Define how EmployeeService works
@@ -230,6 +255,11 @@ public class EmployeeControllerTests {
 		assertEquals("{\"message\":\"Employee Deleted Successfully.\"}", msg);
 	}
 
+    
+    /** 
+     * This checks if the endpoint "[PUT] /api/v1/employees/{emplyeeId}" returns value correctly.
+     * @throws Exception
+     */
     @Test
 	public void testUpdateEmployee() throws Exception {
         // Define how EmployeeService works
@@ -241,7 +271,7 @@ public class EmployeeControllerTests {
         Optional<Employee> opEmp = Optional.ofNullable(emp1); 
         when(empService.getEmployee(any(Long.class))).thenReturn(opEmp);
 
-		// prepare data and mock's behaviour
+		// prepare data 
         Map<String, String> e = new HashMap<>();
         e.put("department", "dep_test");
         e.put("name", "name_test");
@@ -267,6 +297,48 @@ public class EmployeeControllerTests {
         // verify returned value
 		String msg = result.getResponse().getContentAsString();
 		assertEquals("{\"message\":\"Employee Updated Successfully.\"}", msg);
+
+	}
+
+    /** 
+     * This checks if the validation of the endpoint "[PUT] /api/v1/employees/{emplyeeId}" is performed correctly.
+     * @throws Exception
+     */
+    @Test
+	public void testUpdateEmployeeValidationFail() throws Exception {
+        // Define how EmployeeService works
+        Employee emp1 = new Employee();
+        emp1.setId(1l);
+        emp1.setName("name_test");
+        emp1.setSalary("80000");
+        emp1.setDepartment("dep_test");
+        Optional<Employee> opEmp = Optional.ofNullable(emp1); 
+        when(empService.getEmployee(any(Long.class))).thenReturn(opEmp);
+
+		// prepare data 
+        Map<String, String> e = new HashMap<>();
+        e.put("department", "dep_test");
+        e.put("name", "name_test");
+        e.put("salary", "salary_test");
+
+		// execute
+		MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders
+                    .put("/api/v1/employees/1")
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .accept(MediaType.APPLICATION_JSON_VALUE)
+                    .content(TestUtil.objectToJson(e))
+                )
+                .andReturn();
+
+		// verify
+		int status = result.getResponse().getStatus();
+		assertEquals("Incorrect Response Status", HttpStatus.BAD_REQUEST.value(), status);
+
+        // verify returned value
+		String res = result.getResponse().getContentAsString();
+        assertTrue(res.equals("{\"errors\":{\"salary\":\"Salary must be a number\"}}") 
+            || res.equals("{\"errors\":{\"salary\":\"Salary must be at least 0.\"}}"));
 
 	}
 
