@@ -13,7 +13,7 @@ $ cd ./java-challenge
 $ docker-compose up -d --build
 $ docker ps -a
 $ mvn clean package
-$ mvn run
+$ mvn spring-boot:run
 ```
 
 Now the project should be running locally.
