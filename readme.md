@@ -43,7 +43,7 @@ To connect to the MariaDB contaier, please use the following information:
 - Removed bugs.
   - "basic error controller" was removed from swagger-ui.
   - `getEmployee(Long employeeId)` method of `EmoloyeeService` returns `Optional<Employee>`, but controller was checking whether value/null was returned from `getEmployee(Long employeeId)`, which is meaningless because this method always returns `Optional<Employee>` even if the method doesn't find any row by the specified `employeeId`.   
-- Added 6 Unit tests.
+- Added 7 Unit tests.
 - Added comments.
 - Added simple caching logic for database calls
 
