@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 
 @Entity
 @Table(name="EMPLOYEE")
@@ -43,11 +44,13 @@ public class Employee {
     @Getter
     @Setter
     @ApiModelProperty(hidden=true)
+    @ApiParam(access = "internal", required = false)
     @Column(name="UPDATED_AT")
     private Timestamp updatedAt;
 
     @Getter
     @ApiModelProperty(hidden=true)
+    @ApiParam(access = "internal", required = false)
     @Column(name="CREATED_AT")
     private Timestamp createdAt;
 }
