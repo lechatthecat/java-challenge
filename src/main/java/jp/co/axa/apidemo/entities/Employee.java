@@ -11,6 +11,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.annotations.ApiModelProperty;
 
@@ -28,26 +34,35 @@ public class Employee {
 
     @Getter
     @Setter
+    @Size(max = 255, message = "Employee name cannot be more than 255 letters.")
+    @NotBlank(message = "Employee name cannot be blank.")
     @Column(name="EMPLOYEE_NAME")
     private String name;
 
     @Getter
     @Setter
+    @Pattern(message = "Salary must be a number", regexp="^-?[0-9]*$")
+    @Size(max = 255, message = "Salary cannot be more than 255 letters.")
+    @Min(value = 0, message = "Salary must not be less than 0.")
     @Column(name="EMPLOYEE_SALARY")
-    private Integer salary;
+    private String salary;
 
     @Getter
     @Setter
+    @Size(max = 255, message = "Department cannot be more than 255 letters.")
+    @NotBlank(message = "Department cannot be blank.")
     @Column(name="DEPARTMENT")
     private String department;
 
     @Getter
     @Setter
+    @JsonIgnore
     @ApiModelProperty(hidden=true)
     @Column(name="UPDATED_AT")
     private Timestamp updatedAt;
 
     @Getter
+    @JsonIgnore
     @ApiModelProperty(hidden=true)
     @Column(name="CREATED_AT")
     private Timestamp createdAt;
