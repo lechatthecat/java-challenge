@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import io.swagger.annotations.ApiModelProperty;
+
 @Entity
 @Table(name="EMPLOYEE")
 public class Employee {
@@ -40,10 +42,12 @@ public class Employee {
 
     @Getter
     @Setter
+    @ApiModelProperty(hidden=true)
     @Column(name="UPDATED_AT")
     private Timestamp updated_at;
 
     @Getter
+    @ApiModelProperty(hidden=true)
     @Column(name="CREATED_AT")
     private Timestamp created_at;
 }
