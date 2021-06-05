@@ -92,4 +92,4 @@ Please let us know more about your Java experience in a few sentences. For examp
 - I know Spring Boot very well and have been using it for many years
 
 #### My Experience in Java
-- I have 3 years experience in Java and I started to use Spring Boot 2 years ago
+- I have 3 years experience in Java and I started to use Spring Boot 2 years ago.
