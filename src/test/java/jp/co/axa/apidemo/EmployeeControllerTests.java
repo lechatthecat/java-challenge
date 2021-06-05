@@ -196,7 +196,7 @@ public class EmployeeControllerTests {
 
 		String res = result.getResponse().getContentAsString();
         assertTrue(res.equals("{\"errors\":{\"salary\":\"Salary must be a number\"}}") 
-            || res.equals("{\"errors\":{\"salary\":\"Salary must not be less than 0.\"}}"));
+            || res.equals("{\"errors\":{\"salary\":\"Salary must be at least 0.\"}}"));
 	}
 
     @Test
