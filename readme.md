@@ -32,8 +32,8 @@ To connect to the MariaDB contaier, please use the following information:
 
 #### Enhancements I did
 - Replaced H2 mem DB with MariaDB running on Docker container.
-  - H2 DB is not supposed to be used as a main DB in production, but MariaDB and Docker can be used as a main DB both in development and production.
-  - I used Docker to not reduce the project portability. H2 DB can be easily moved to other environment, but MariaDB with Docker also can be easily moved.
+  - H2 DB is not supposed to be used as a main DB in production, but MariaDB and Docker can be used as a main DB in both development and production.
+  - I used Docker not to reduce the project portability. H2 DB can be easily moved to other environment, but MariaDB with Docker also can be easily moved.
   - If this system were used in production, when traffic grows, MariaDB/Docker would provide better performance.
 - Changed Swagger/Swagger-UI version to 3.0.0.
   - My IDE shows vulnerability warning on ver 2.9.xx, but ver 2.10.2 is broken version according to GitHub issue, so I changed it to ver 3.0.0.
