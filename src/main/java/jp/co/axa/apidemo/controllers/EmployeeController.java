@@ -113,7 +113,7 @@ public class EmployeeController {
      * @param bindingResult
      * @return ResponseEntity<?>
      */
-    @CacheEvict(cacheNames={"employees", "employee"})
+    @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
     @PostMapping(value = "/employees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = {
@@ -152,7 +152,7 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
-    @CacheEvict(cacheNames={"employees", "employee"})
+    @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
     @DeleteMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = {
@@ -209,7 +209,7 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
-    @CacheEvict(cacheNames={"employees", "employee"})
+    @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
     @PutMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ApiResponses(value = {
