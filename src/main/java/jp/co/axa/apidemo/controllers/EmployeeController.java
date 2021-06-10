@@ -240,7 +240,7 @@ public class EmployeeController {
             // If Employee was found by the employeeId, we update the data
             if(opEmp.isPresent()){
                 // If Employee was found, proceed to update the user.
-                employeeService.updateEmployee(employee);
+                employeeService.updateEmployee(opEmp.get(), employee);
                 logger.info("Employee Updated Successfully: " + employeeId);
                 return new ResponseEntity<>(this.getMessageMap("Employee Updated Successfully."), HttpStatus.OK);
             }

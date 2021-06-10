@@ -291,7 +291,7 @@ public class EmployeeControllerTests {
 		assertEquals("Incorrect Response Status", HttpStatus.OK.value(), status);
 
 		// verify that service method was called once
-		verify(empService).updateEmployee(any(Employee.class));
+		verify(empService).updateEmployee(any(Employee.class), any(Employee.class));
 
         // verify returned value
 		String msg = result.getResponse().getContentAsString();

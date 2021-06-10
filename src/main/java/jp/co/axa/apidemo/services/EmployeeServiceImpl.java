@@ -74,10 +74,13 @@ public class EmployeeServiceImpl implements EmployeeService{
      * @param employee
      */
     @Transactional
-    public void updateEmployee(Employee employee) {
+    public void updateEmployee(Employee employeeFrom, Employee employeeTo) {
+        employeeFrom.setDepartment(employeeTo.getDepartment());
+        employeeFrom.setName(employeeTo.getName());
+        employeeFrom.setSalary(employeeTo.getSalary());
         Instant instant = Instant.now();
         Timestamp timestamp = Timestamp.from(instant);
-        employee.setUpdatedAt(timestamp);
-        employeeRepository.save(employee);
+        employeeFrom.setUpdatedAt(timestamp);
+        employeeRepository.save(employeeFrom);
     }
 }
