@@ -1,4 +1,4 @@
-package jp.co.axa.apidemo.payloads;
+package jp.co.axa.apidemo.payload;
 
 import lombok.Getter;
 import lombok.Setter;

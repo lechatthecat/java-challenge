@@ -1,7 +1,7 @@
 package jp.co.axa.apidemo.controllers;
 
 import jp.co.axa.apidemo.entities.Employee;
-import jp.co.axa.apidemo.payloads.MessageResponse;
+import jp.co.axa.apidemo.payload.MessageResponse;
 import jp.co.axa.apidemo.services.EmployeeService;
 
 import org.slf4j.Logger;
