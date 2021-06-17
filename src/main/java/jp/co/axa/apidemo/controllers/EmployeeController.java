@@ -47,6 +47,9 @@ public class EmployeeController {
      */
     @Cacheable("employees")
     @GetMapping(value = "/employees", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message ="Returns all employees", response = Employee.class, responseContainer = "List"),
+    })
     public ResponseEntity<?> getEmployees() {
         try {
             return new ResponseEntity<>(employeeService.retrieveEmployees(), HttpStatus.OK);
