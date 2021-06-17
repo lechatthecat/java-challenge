@@ -248,7 +248,7 @@ public class EmployeeController {
     }
     
     /** 
-     * Check is given string can be parsed to Long. 
+     * Check if given string can be parsed to Long. 
      * Returns true when possible. 
      * Returns false when impossible. 
      * 
