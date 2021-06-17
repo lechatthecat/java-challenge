@@ -1,6 +1,7 @@
 package jp.co.axa.apidemo.controllers;
 
 import jp.co.axa.apidemo.entities.Employee;
+import jp.co.axa.apidemo.payloads.MessageResponse;
 import jp.co.axa.apidemo.services.EmployeeService;
 
 import org.slf4j.Logger;
@@ -15,7 +16,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.annotations.*;
 
@@ -56,7 +56,7 @@ public class EmployeeController {
         } catch (Exception ex){
             logger.error("Employee Failed to Search.", ex);
             // To not return the detail, we just return a fixed string and a status number.
-            Map<String, String> error = this.getMessageMap("Sorry, server error. Please try again later.");
+            MessageResponse error = this.getMessageMap("Sorry, server error. Please try again later.");
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -96,7 +96,7 @@ public class EmployeeController {
             // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Search: " + employeeId, ex);
             // To not return the detail, we just return a fixed string and a status number.
-            Map<String, String> error = this.getMessageMap("Sorry, server error. Please try again later.");
+            MessageResponse error = this.getMessageMap("Sorry, server error. Please try again later.");
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -116,7 +116,7 @@ public class EmployeeController {
      * @param bindingResult
      * @return ResponseEntity<?>
      */
-    @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
+    @CacheEvict(cacheNames={"employees", "employee"})
     @PostMapping(value = "/employees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message ="Successfully saved. Returns saved Employee.", response = Employee.class),
@@ -138,7 +138,7 @@ public class EmployeeController {
             // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Save.", ex);
             // To not return the detail, we just return a fixed string and a status number.
-            Map<String, String> error = this.getMessageMap("Sorry, server error. Please try again later.");
+            MessageResponse error = this.getMessageMap("Sorry, server error. Please try again later.");
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -154,10 +154,10 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
-    @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
+    @CacheEvict(cacheNames={"employees", "employee"})
     @DeleteMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message ="Successfully deleted. Returns a message \"Employee Deleted Successfully\".", response = Employee.class),
+        @ApiResponse(code = 200, message ="Successfully deleted. Returns a message \"Success.\".", response = MessageResponse.class),
         @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
     })
     public ResponseEntity<?> deleteEmployee(@Validated @PathVariable(name="employeeId")String employeeId){
@@ -165,11 +165,7 @@ public class EmployeeController {
             // Check if the employee ID is a valid long
             if (!this.isLong(employeeId)) {
                 // If there is any error, return the errors.
-                Map<String, Map<String, String>> errors = new HashMap<>();
-                Map<String, String> internalErrors = new HashMap<>();
-                internalErrors.put("id", "Employee ID is invalid.");
-                errors.put("errors", internalErrors);
-                return ResponseEntity.badRequest().body(errors);
+                return ResponseEntity.badRequest().body(this.createError("id", "Employee ID is invalid."));
             }
             // If Employee ID is valid, convert Employee ID to long.
             long longEmployeeId = Long.valueOf(employeeId);
@@ -178,7 +174,7 @@ public class EmployeeController {
                 // If Employee was found, proceed to delete the user.
                 employeeService.deleteEmployee(longEmployeeId);
                 logger.info("Employee Deleted Successfully: " + employeeId);
-                return new ResponseEntity<>(this.getMessageMap("Employee Deleted Successfully."), HttpStatus.OK);
+                return new ResponseEntity<>(this.getMessageMap("Success."), HttpStatus.OK);
             }
             // If Employee was not found, notify the user that the Employee was not found.
             return new ResponseEntity<>(this.getMessageMap("Employee Not Found."), HttpStatus.NOT_FOUND);
@@ -186,7 +182,7 @@ public class EmployeeController {
             // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Delete: " + employeeId, ex);
             // To not return the detail, we just return a fixed string and a status number.
-            Map<String, String> error = this.getMessageMap("Sorry, server error. Please try again later.");
+            MessageResponse error = this.getMessageMap("Sorry, server error. Please try again later.");
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -210,10 +206,10 @@ public class EmployeeController {
      * @param employeeId
      * @return ResponseEntity<?>
      */
-    @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
+    @CacheEvict(cacheNames={"employees", "employee"})
     @PutMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message ="Successfully updated. Returns a message \"Employee Updated Successfully.\".", response = Employee.class),
+        @ApiResponse(code = 200, message ="Successfully updated. Returns a message \"Success.\".", response = MessageResponse.class),
         @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
     })
     public ResponseEntity<?> updateEmployee(@Valid @RequestBody Employee employee,
@@ -222,11 +218,7 @@ public class EmployeeController {
         try {
             // Check if the employee ID is a valid long
             if (!this.isLong(employeeId)) {
-                Map<String, Map<String, String>> errors = new HashMap<>();
-                Map<String, String> internalErrors = new HashMap<>();
-                internalErrors.put("id", "Employee ID is invalid.");
-                errors.put("errors", internalErrors);
-                return ResponseEntity.badRequest().body(errors);
+                return ResponseEntity.badRequest().body(this.createError("id", "Employee ID is invalid."));
             }
             // Validate the user input. Save the data only when the data is valid.
             if (bindingResult.hasErrors()) {
@@ -242,7 +234,7 @@ public class EmployeeController {
                 // If Employee was found, proceed to update the user.
                 employeeService.updateEmployee(opEmp.get(), employee);
                 logger.info("Employee Updated Successfully: " + employeeId);
-                return new ResponseEntity<>(this.getMessageMap("Employee Updated Successfully."), HttpStatus.OK);
+                return new ResponseEntity<>(this.getMessageMap("Success."), HttpStatus.OK);
             }
             // If Employee was not found, notify the user that the Employee was not found.
             return new ResponseEntity<>(this.getMessageMap("Employee Not Found."), HttpStatus.NOT_FOUND);
@@ -250,7 +242,7 @@ public class EmployeeController {
             // We don't return the error detail to the API caller.
             logger.error("Employee Failed to Update", ex);
             // To not return the detail, we just return a fixed string and a status number.
-            Map<String, String> error = this.getMessageMap("Sorry, server error. Please try again later.");
+            MessageResponse error = this.getMessageMap("Sorry, server error. Please try again later.");
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -280,6 +272,8 @@ public class EmployeeController {
      *      "salary": "Salary must not be less than 0."
      *  }
      * 
+     * This returns the same format as the format of createError()
+     * 
      * @param errors
      * @return Map<String, Map<String, String>>
      */
@@ -294,16 +288,37 @@ public class EmployeeController {
     }
     
     /** 
+     * This function accepts one string and convert it to error message in json format:
+     * 
+     * "errors": {
+     *      "id": "Employee ID is invalid.",
+     *  }
+     * 
+     * This returns the same format as the format of getErrors()
+     * 
+     * @param propertyName
+     * @param message
+     * @return Map<String, Map<String, String>>
+     */
+    private Map<String, Map<String, String>> createError(String propertyName, String message) {
+        Map<String, String> errorList = new HashMap<>();
+        errorList.put(propertyName, message);
+        Map<String, Map<String, String>> result = new HashMap<>();
+        result.put("errors", errorList);
+        return result;
+    }
+
+    /** 
      * This function organizes message information so that the information would look like in json format:
      * 
      * "message" : "My Message Here." 
      * 
      * @param msg
-     * @return Map<String, String>
+     * @return SuccessResponse
      */
-    private Map<String, String> getMessageMap(String msg) {
-        Map<String, String> result = new HashMap<>();
-        result.put("message", msg);
+    private MessageResponse getMessageMap(String msg) {
+        MessageResponse result = new MessageResponse();
+        result.setMessage(msg);
         return result;
     }
 }
