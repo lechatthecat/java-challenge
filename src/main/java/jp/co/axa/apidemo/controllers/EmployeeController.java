@@ -47,13 +47,14 @@ public class EmployeeController {
      */
     @Cacheable("employees")
     @GetMapping(value = "/employees", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public List<Employee> getEmployees() {
+    public ResponseEntity<?> getEmployees() {
         try {
-            return employeeService.retrieveEmployees();
+            return new ResponseEntity<>(employeeService.retrieveEmployees(), HttpStatus.OK);
         } catch (Exception ex){
             logger.error("Employee Failed to Search.", ex);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Sorry, server error. Please try again later.");
+            // To not return the detail, we just return a fixed string and a status number.
+            Map<String, String> error = this.getMessageMap("Sorry, server error. Please try again later.");
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -70,7 +71,6 @@ public class EmployeeController {
      */
     @Cacheable("employee")
     @GetMapping(value = "/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
     @ApiResponses(value = {
         @ApiResponse(code = 200, message ="Successfully found Employee. Returns one Employee selected by a given Employee ID.", response = Employee.class),
     })
@@ -115,7 +115,6 @@ public class EmployeeController {
      */
     @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
     @PostMapping(value = "/employees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
     @ApiResponses(value = {
         @ApiResponse(code = 200, message ="Successfully saved. Returns saved Employee.", response = Employee.class),
         @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
@@ -154,7 +153,6 @@ public class EmployeeController {
      */
     @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
     @DeleteMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
     @ApiResponses(value = {
         @ApiResponse(code = 200, message ="Successfully deleted. Returns a message \"Employee Deleted Successfully\".", response = Employee.class),
         @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
@@ -211,7 +209,6 @@ public class EmployeeController {
      */
     @CacheEvict(cacheNames={"employees", "employee"}, allEntries=true)
     @PutMapping(value="/employees/{employeeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
     @ApiResponses(value = {
         @ApiResponse(code = 200, message ="Successfully updated. Returns a message \"Employee Updated Successfully.\".", response = Employee.class),
         @ApiResponse(code = 400, message = "Returns validation errors. Validation errors are stored in \"errors\".")
